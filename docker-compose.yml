@@ -1,0 +1,97 @@
+version: "3.2"
+services:
+  master:
+    image: adamlv/ubuntu-hadoop:1.7
+    hostname: master
+    container_name: master
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/project
+    env_file:
+      - .env
+    networks:
+      hadoop:
+        ipv4_address: 172.20.0.2
+    ports:
+      - "9870:9870"  # HDFS Web UI
+      - "8088:8088"    # YARN Web UI
+
+  slave1:
+    image: adamlv/ubuntu-hadoop:1.7
+    hostname: slave1
+    container_name: slave1
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/project
+    env_file:
+      - .env
+    links:
+      - master
+    networks:
+      hadoop:
+        ipv4_address: 172.20.0.3
+
+  slave2:
+    image: adamlv/ubuntu-hadoop:1.7
+    hostname: slave2
+    container_name: slave2
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/project
+    env_file:
+      - .env
+    links:
+      - master
+    networks:
+      hadoop:
+        ipv4_address: 172.20.0.4
+
+  slave3:
+    image: adamlv/ubuntu-hadoop:1.7
+    hostname: slave3
+    container_name: slave3
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/project
+    env_file:
+      - .env
+    links:
+      - master
+    networks:
+      hadoop:
+        ipv4_address: 172.20.0.5
+
+
+  slave4:
+    image: adamlv/ubuntu-hadoop:1.7
+    hostname: slave4
+    container_name: slave4
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/project
+    env_file:
+      - .env
+    links:
+      - master
+    networks:
+      hadoop:
+        ipv4_address: 172.20.0.6
+
+
+networks:
+  hadoop:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
