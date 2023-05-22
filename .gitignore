@@ -28,5 +28,9 @@ bin/
 ### Jet Brains ###
 .idea/
 *.iml
+
 ### Mac OS ###
 .DS_Store
+
+### Maven ###
+target/
