@@ -1,9 +1,10 @@
 # README
-该项目使用docker-compose部署集群，其中使用的镜像adamlv/ubuntu-hadoop:1.7已公开上传至dockerhub，可直接使用。
-项目中包括了一个Hadoop HelloWorld程序和一个Hadoop WordCount程序，位于包pers.hadoop.helloworld中。
+该项目使用docker-compose部署集群，其中使用的镜像adamlv/ubuntu-hadoop:2.0已公开上传至dockerhub，可直接使用。
+项目中包括了一个Hadoop HelloWorld程序和一个Hadoop WordCount程序，位于包pers.hadoop.helloworld中。镜像中
+已经添加了maven构建工具，可以通过maven管理项目。
 
 ## 1. 集群规模
-所有节点均使用镜像adamlv/ubuntu-hadoop:1.7构建，使用docker-compose部署，包括一个master节点和四个slave节点，其中master节点上部署了
+所有节点均使用镜像adamlv/ubuntu-hadoop:2.0构建，使用docker-compose部署，包括一个master节点和四个slave节点，其中master节点上部署了
 namenode、datanode、resourcemanager，所有slave节点上各自部署了datanode、nodemanager，额外在slave1节点上部署了secondarynamenode。
 所有节点使用相同的配置文件，位于项目`hadoop-config`目录中。
 
@@ -13,13 +14,25 @@ namenode、datanode、resourcemanager，所有slave节点上各自部署了datan
 2. 进入master节点终端，执行`hdfs namenode -format`格式化namenode。
 3. 执行`start-all.sh`启动集群。
 
-## 3. WordCount程序运行
-在master节点`/project/target`目录下执行
+## 3. WordCount程序构建与运行
+项目使用maven构建，在master节点`/project`目录下使用`mvn package`命令构建jar包。
+
+之后进入`target`目录，使用以下命令运行WordCount程序：
 ```shell
-hadoop jar helloworld.jar pers.hadoop.helloworld.WordCount <input-file> <output-dir>
+hadoop jar HelloWorld-1.0.jar pers.hadoop.helloworld.WordCount <input-file> <output-dir>
 ```
 其中`<input-file>`为输入文件的hdfs路径，`<output-dir>`为输出目录的hdfs路径。
-可以使用`hdfs dfs -put <local-file> <input-file>`将本地文件上传至hdfs，使用
-`hdfs dfs -cat <output-dir>/part-r-00000`查看输出结果。
+
+在初始化hdfs文件系统后，文件系统中没有任何文件，需要使用`hdfs dfs -put <local-file> <input-file>`将本地文件上传至hdfs。代码提供了一个样例
+输入文件`src/main/resources/words.txt`，经过maven构建后，位于`target/classes/words.txt`，可以使用以下命令上传至hdfs：
+```shell
+hdfs dfs -put target/classes/words.txt /words.txt
+```
+之后使用以下命令运行WordCount程序：
+```shell
+hadoop jar HelloWorld-1.0.jar pers.hadoop.helloworld.WordCount /words.txt /output
+```
+
+可以使用`hdfs dfs -cat <output-dir>/part-r-00000`查看输出结果。
 
 另外，当集群启动后，可以在宿主机通过`http://localhost:9870`访问HDFS管理界面，通过`http://localhost:8088`访问YARN管理界面。
