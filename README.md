@@ -11,7 +11,7 @@ namenode、datanode、resourcemanager，所有slave节点上各自部署了datan
 ## 2. 环境配置与集群启动
 可以使用任意操作系统，但需要安装并开启docker服务，并且保证docker-compose可用、网络端口9870、8088空闲。
 1. 在项目根目录下执行`docker-compose up -d`启动集群。
-2. 进入master节点终端，执行`hdfs namenode -format`格式化namenode。
+2. 进入master节点终端，执行`hdfs namenode -format`格式化namenode。途中输入`Y`确认重新格式化。
 3. 执行`start-all.sh`启动集群。
 
 ## 3. WordCount程序构建与运行
@@ -33,6 +33,13 @@ hdfs dfs -put target/classes/words.txt /words.txt
 hadoop jar HelloWorld-1.0.jar pers.hadoop.helloworld.WordCount /words.txt /output
 ```
 
-可以使用`hdfs dfs -cat <output-dir>/part-r-00000`查看输出结果。
+可以使用`hdfs dfs -cat <output-dir>/part-r-00000`查看输出结果。若使用如上命令上传文件，则可以使用
+`hdfs dfs -cat /output/part-r-00000`查看输出结果。
 
 另外，当集群启动后，可以在宿主机通过`http://localhost:9870`访问HDFS管理界面，通过`http://localhost:8088`访问YARN管理界面。
+
+## 4. 可能出现的问题
+1. docker镜像基于x86_64架构，在arm架构的处理器上运行速度十分缓慢。
+2. 若出现"Pool overlaps with other one on this address space"报错提示，请对docker-compose.yml文件中的networks配置进行如下修改：
+   - 删除所有节点的IP地址分配，将`hadoop:`更改为`- hadoop`。
+   - 删除networks配置中的`ipam`配置（文件的最后四行）。
